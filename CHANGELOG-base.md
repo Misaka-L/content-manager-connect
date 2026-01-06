@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Will show rpc api error message when rpc api error occurred. [`#67`](https://github.com/project-vrcz/content-publisher-connect/pull/67)
+
 ## [0.3.1] - 2025-12-30
 
 ### Added
