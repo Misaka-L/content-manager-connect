@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-01-06
+
 ### Added
 
 - Will show rpc api error message when rpc api error occurred. [`#67`](https://github.com/project-vrcz/content-publisher-connect/pull/67)
@@ -117,7 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix unable to build and upload when use Content Mangaer publish flow is disbaled. [`#8`](https://github.com/project-vrcz/content-publisher-connect/pull/8)
 
-[unreleased]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.3.1...HEAD
+[unreleased]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.3.2...HEAD
+[0.3.2]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.3.1...base-v0.3.2
 [0.3.1]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.3.0...base-v0.3.1
 [0.3.0]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.2.0...base-v0.3.0
 [0.2.0]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.2.0-beta.2...base-v0.2.0
