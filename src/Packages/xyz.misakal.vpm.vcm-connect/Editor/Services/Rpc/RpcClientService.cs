@@ -83,12 +83,11 @@ internal sealed class RpcClientService {
         };
 
         var response = await SendAsync(request);
-        response.EnsureSuccessStatusCode();
 
         var responseBody = await response.Content.ReadFromJsonAsync<ChallengeResponse>();
         if (responseBody is null)
-            throw new InvalidResponseException();
-        
+            throw new UnexpectedRpcResponseException("Rpc api returned an null response.");
+
         _token = responseBody.Token;
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
 
@@ -149,7 +148,8 @@ internal sealed class RpcClientService {
             // Successfully restored session
             return;
         }
-        catch (Exception ex) when (ex is not InvalidStatusCodeException && ex is not InvalidResponseException) {
+        catch (Exception ex) when (ex is not UnexpectedRpcStatusCodeException &&
+                                   ex is not UnexpectedRpcResponseException) {
             if (hostUri.Host != "localhost" && hostUri.Host != "127.0.0.1" && hostUri.Host != "[::1]")
                 throw;
 
@@ -170,7 +170,8 @@ internal sealed class RpcClientService {
                 await GetAuthMetadataForSessionAsync(session);
                 break;
             }
-            catch (Exception ex) when (ex is not InvalidStatusCodeException && ex is not InvalidResponseException) {
+            catch (Exception ex) when (ex is not UnexpectedRpcStatusCodeException &&
+                                       ex is not UnexpectedRpcResponseException) {
                 _logger.LogWarning(ex, $"Attempt {attempt + 1} to restore session to local RPC server failed.");
             }
 
@@ -206,12 +207,11 @@ internal sealed class RpcClientService {
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", session.Token);
 
         var response = await _httpClient.SendAsync(request);
-        if (response.StatusCode != HttpStatusCode.OK)
-            throw new InvalidStatusCodeException();
+        await HandleErrorResponseAsync(response);
 
         var authMetadata = await response.Content.ReadFromJsonAsync<AuthMetadataResponse>();
         if (authMetadata is null)
-            throw new InvalidResponseException();
+            throw new UnexpectedRpcResponseException("Rpc api returned an null response.");
 
         return authMetadata;
     }
@@ -224,6 +224,8 @@ internal sealed class RpcClientService {
         var response = await _httpClient.SendAsync(request);
         if (response.StatusCode == HttpStatusCode.NotFound)
             throw new NotSupportedException("Instance does not support ready-for-publish check.");
+
+        await HandleErrorResponseAsync(response);
 
         return response.StatusCode == HttpStatusCode.NoContent;
     }
@@ -246,11 +248,11 @@ internal sealed class RpcClientService {
         var request = new HttpRequestMessage(HttpMethod.Get, new Uri(hostUri, "/v1/meta"));
         var response = await _httpClient.SendAsync(request);
 
-        response.EnsureSuccessStatusCode();
+        await HandleErrorResponseAsync(response);
 
         var responseBody = await response.Content.ReadFromJsonAsync<MetadataResponse>(_serializerOptions);
         if (responseBody is null)
-            throw new InvalidResponseException();
+            throw new UnexpectedRpcResponseException("Rpc api returned an null response.");
 
         return responseBody;
     }
@@ -268,8 +270,9 @@ internal sealed class RpcClientService {
         var requestBody = new RequestChallengeRequest(_clientId, identityPrompt, _clientIdProvider.GetClientName());
         var response = await _httpClient.PostAsJsonAsync(requestUri, requestBody, _serializerOptions);
 
+        await HandleErrorResponseAsync(response);
         if (response.StatusCode != HttpStatusCode.NoContent) {
-            throw new Exception("Unexpected response status code: " + response.StatusCode);
+            throw new UnexpectedRpcStatusCodeException((int)response.StatusCode);
         }
 
         _baseUrl = baseUri;
@@ -291,13 +294,11 @@ internal sealed class RpcClientService {
         var requestBody = new ChallengeRequest(_clientId, code, _identityPrompt);
         var response = await _httpClient.PostAsJsonAsync("/v1/auth/challenge", requestBody, _serializerOptions);
 
-        if (!response.IsSuccessStatusCode) {
-            throw new Exception("Challenge failed with status code: " + response.StatusCode);
-        }
+        await HandleErrorResponseAsync(response);
 
         var responseBody = await response.Content.ReadFromJsonAsync<ChallengeResponse>(_serializerOptions);
         if (responseBody is null) {
-            throw new Exception("Invalid response from server.");
+            throw new UnexpectedRpcResponseException("Rpc api returned an null response.");
         }
 
         _token = responseBody.Token;
@@ -318,12 +319,16 @@ internal sealed class RpcClientService {
     }
 
     private async ValueTask<AuthMetadataResponse> GetAuthMetadataAsyncCore() {
-        var response = await _httpClient.GetFromJsonAsync<AuthMetadataResponse>("/v1/auth/metadata");
-        if (response is null) {
-            throw new Exception("Invalid response from server.");
+        var response = await _httpClient.GetAsync("/v1/auth/metadata");
+
+        await HandleErrorResponseAsync(response);
+
+        var responseBody = await response.Content.ReadFromJsonAsync<AuthMetadataResponse>(_serializerOptions);
+        if (responseBody is null) {
+            throw new UnexpectedRpcResponseException("Rpc api returned an null response.");
         }
 
-        return response;
+        return responseBody;
     }
 
     internal async ValueTask<string> UploadFileAsync(string filePath, string fileName) {
@@ -340,21 +345,18 @@ internal sealed class RpcClientService {
             Content = content
         });
 
-        response.EnsureSuccessStatusCode();
-
         var responseBody = await response.Content.ReadFromJsonAsync<UploadFileResponse>(_serializerOptions);
         if (responseBody is null) {
-            throw new Exception("Invalid response from server.");
+            throw new UnexpectedRpcResponseException("Rpc api returned an null response.");
         }
 
         return responseBody.FileId;
     }
 
     internal async ValueTask CreateWorldPublishTaskAsync(CreateWorldPublishTaskRequest request) {
-        var response = await SendAsync(new HttpRequestMessage(HttpMethod.Post, "/v1/tasks/world") {
+        await SendAsync(new HttpRequestMessage(HttpMethod.Post, "/v1/tasks/world") {
             Content = JsonContent.Create(request)
         });
-        response.EnsureSuccessStatusCode();
     }
 
     internal async ValueTask CreateAvatarPublishTaskAsync(
@@ -378,11 +380,9 @@ internal sealed class RpcClientService {
                 tags,
                 releaseStatus);
 
-        var response = await SendAsync(new HttpRequestMessage(HttpMethod.Post, "/v1/tasks/avatar") {
+        await SendAsync(new HttpRequestMessage(HttpMethod.Post, "/v1/tasks/avatar") {
             Content = JsonContent.Create(requestBody)
         });
-
-        response.EnsureSuccessStatusCode();
     }
 
     internal async ValueTask<HttpResponseMessage> SendAsync(HttpRequestMessage request) {
@@ -397,11 +397,26 @@ internal sealed class RpcClientService {
         if (response.StatusCode == HttpStatusCode.Unauthorized) {
             _logger.LogWarning("Unauthorized response, disconnecting.");
             await ForgetAndDisconnectAsync();
-
-            throw new InvalidOperationException("Unauthorized response.");
         }
 
+        await HandleErrorResponseAsync(response);
         return response;
+    }
+
+    private async ValueTask HandleErrorResponseAsync(HttpResponseMessage response) {
+        if (response.IsSuccessStatusCode)
+            return;
+
+        var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>(_serializerOptions);
+        if (errorResponse is null)
+            throw new UnexpectedRpcResponseException("Rpc api returned an error but the response is null.");
+
+        throw new RpcApiErrorException(
+            errorResponse.Type,
+            errorResponse.StatusCode,
+            errorResponse.Title,
+            errorResponse.Detail
+        );
     }
 
     public async Task ForgetAndDisconnectAsync() {
