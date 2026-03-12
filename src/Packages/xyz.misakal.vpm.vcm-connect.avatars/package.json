@@ -1,7 +1,7 @@
 {
   "name": "xyz.misakal.vpm.vcm-connect.avatars",
   "displayName": "VRChat Content Publisher Connect - Avatars",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "hideInEditor": true,
   "description": "Connect to your VRChat Content Publisher",
   "unity": "2022.3",
