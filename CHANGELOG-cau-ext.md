@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-03-12
+
 ### Changed
 
 - **BREAKING CHANGE** Bump to Yes! Patch Framework v0.3.0. [`#68`](https://github.com/project-vrcz/content-publisher-connect/pull/68)
@@ -62,7 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Check RPC Connection Status before CAU upload start
   - Prevent upload if disconnected and use content manager publish flow is enabled.
 
-[unreleased]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.3.0...HEAD
+[unreleased]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.4.0...HEAD
+[0.4.0]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.3.0...cau-ext-v0.4.0
 [0.3.0]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.2.0...cau-ext-v0.3.0
 [0.2.0]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.2.0-beta.1...cau-ext-v0.2.0
 [0.2.0-beta.1]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.1.2...cau-ext-v0.2.0-beta.1
