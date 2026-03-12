@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING CHANGE** Bump to Yes! Patch Framework v0.3.0. [`#68`](https://github.com/project-vrcz/content-publisher-connect/pull/68)
+
 ## [0.3.2] - 2026-01-06
 
 ### Added
