@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-03-22
+
 ### Changed
 
 - **BREAKING CHANGE** Storage settings and session info in project `Library` folder. [`#70`](https://github.com/project-vrcz/content-publisher-connect/pull/70)
@@ -68,7 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Check RPC Connection Status before CAU upload start
   - Prevent upload if disconnected and use content manager publish flow is enabled.
 
-[unreleased]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.4.0...HEAD
+[unreleased]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.5.0...HEAD
+[0.5.0]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.4.0...cau-ext-v0.5.0
 [0.4.0]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.3.0...cau-ext-v0.4.0
 [0.3.0]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.2.0...cau-ext-v0.3.0
 [0.2.0]: https://github.com/project-vrcz/content-publisher-connect/compare/cau-ext-v0.2.0-beta.1...cau-ext-v0.2.0
