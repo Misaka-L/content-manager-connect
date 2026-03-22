@@ -1,7 +1,7 @@
 {
   "name": "xyz.misakal.vpm.vcm-connect.worlds",
   "displayName": "VRChat Content Publisher Connect - Worlds",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "hideInEditor": true,
   "description": "Connect to your VRChat Content Publisher",
   "unity": "2022.3",
