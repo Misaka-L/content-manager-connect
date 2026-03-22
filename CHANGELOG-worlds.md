@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING CHANGE** Storage settings and session info in project `Library` folder. [`#70`](https://github.com/project-vrcz/content-publisher-connect/pull/70)
+
 ## [0.4.0] - 2026-03-12
 
 ### Changed
