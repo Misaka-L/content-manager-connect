@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Bypass bundle size check even if publish flow disabled. [`#74`](https://github.com/project-vrcz/content-publisher-connect/pull/74)
+
 ## [0.5.0] - 2026-03-22
 
 ### Changed
