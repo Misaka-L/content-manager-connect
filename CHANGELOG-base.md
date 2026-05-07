@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Show tip to tell user use SDK Build and Upload to publish content on connected page. [`#75`](https://github.com/project-vrcz/content-publisher-connect/pull/75)
+
 ### Fixed
 
 - Bypass bundle size check even if publish flow disabled. [`#74`](https://github.com/project-vrcz/content-publisher-connect/pull/74)
