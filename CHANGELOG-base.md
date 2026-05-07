@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-05-07
+
 ### Added
 
 - Show tip to tell user use SDK Build and Upload to publish content on connected page. [`#75`](https://github.com/project-vrcz/content-publisher-connect/pull/75)
@@ -139,7 +141,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix unable to build and upload when use Content Mangaer publish flow is disbaled. [`#8`](https://github.com/project-vrcz/content-publisher-connect/pull/8)
 
-[unreleased]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.5.0...HEAD
+[unreleased]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.5.1...HEAD
+[0.5.1]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.5.0...base-v0.5.1
 [0.5.0]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.4.0...base-v0.5.0
 [0.4.0]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.3.2...base-v0.4.0
 [0.3.2]: https://github.com/project-vrcz/content-publisher-connect/compare/base-v0.3.1...base-v0.3.2
