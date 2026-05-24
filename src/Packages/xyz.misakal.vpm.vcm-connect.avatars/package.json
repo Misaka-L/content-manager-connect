@@ -18,7 +18,7 @@
     "vrchat"
   ],
   "vpmDependencies": {
-    "xyz.misakal.vpm.vcm-connect": "^0.5.0",
+    "xyz.misakal.vpm.vcm-connect": "^0.5.2",
     "com.vrchat.avatars": "^3.7.0"
   }
 }
