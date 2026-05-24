@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Will send owner user id to app when create avatar publish task. [`#79`](https://github.com/project-vrcz/content-publisher-connect/pull/79)
+
 ## [0.5.1] - 2026-05-07
 
 ### Added
