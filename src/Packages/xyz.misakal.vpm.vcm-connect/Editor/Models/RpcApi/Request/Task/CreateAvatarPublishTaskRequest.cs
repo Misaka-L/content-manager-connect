@@ -13,6 +13,8 @@ internal record CreateAvatarPublishTaskRequest(
     string Platform,
     [property: JsonPropertyName("UnityVersion")]
     string UnityVersion,
+    [property: JsonPropertyName("AuthorId")]
+    string? AuthorId = null,
     [property: JsonPropertyName("ThumbnailFileId")]
     string? ThumbnailFileId = null,
     [property: JsonPropertyName("Description")]

@@ -368,13 +368,15 @@ internal sealed class RpcClientService {
         string? imageFileId = null,
         string? description = null,
         string[]? tags = null,
-        string? releaseStatus = null) {
+        string? releaseStatus = null,
+        string? authorId = null) {
         var requestBody =
             new CreateAvatarPublishTaskRequest(avatarId,
                 bundleFileId,
                 avatarName,
                 platform,
                 unityVersion,
+                authorId,
                 imageFileId,
                 description,
                 tags,

@@ -78,7 +78,7 @@ namespace VRChatContentPublisherConnect.Avatars.Editor.Patch {
                 _logger.LogDebug("Bundle File Id: " + fileId);
 
                 await rpcClient.CreateAvatarPublishTaskAsync(id, fileId, data.Name, Tools.Platform,
-                    Tools.UnityVersion.ToString());
+                    Tools.UnityVersion.ToString(), authorId: APIUser.CurrentUser?.id);
 
                 return data;
             });

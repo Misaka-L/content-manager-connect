@@ -90,7 +90,8 @@ namespace VRChatContentPublisherConnect.Avatars.Editor.Patch {
                     imageFileId,
                     data.Description,
                     data.Tags.ToArray(),
-                    data.ReleaseStatus
+                    data.ReleaseStatus,
+                    APIUser.CurrentUser?.id
                 );
                 return data;
             }, cancellationToken);
