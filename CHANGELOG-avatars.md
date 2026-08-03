@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- if error occurred during pre upload check for sdk builder panel, it will fail silently. [`#87`](https://github.com/project-vrcz/content-publisher-connect/pull/87)
+
 ## [0.5.2] - 2026-05-24
 
 ### Added
