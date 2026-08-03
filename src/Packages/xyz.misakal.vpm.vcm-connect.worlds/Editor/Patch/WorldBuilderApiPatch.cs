@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
+using JetBrains.Annotations;
 using VRC.SDK3.Editor;
 using VRC.SDKBase.Editor.Api;
 using VRChatContentPublisherConnect.Editor;
 using YesPatchFrameworkForVRChatSdk.PatchApi;
 using YesPatchFrameworkForVRChatSdk.PatchApi.Extensions;
+using YesPatchFrameworkForVRChatSdk.PatchApi.Logging;
 
 namespace VRChatContentPublisherConnect.Worlds.Editor.Patch {
     [HarmonyPatch]
@@ -44,7 +47,7 @@ namespace VRChatContentPublisherConnect.Worlds.Editor.Patch {
         [HarmonyPrefix]
         public static bool Prefix(ref Task __result, VRCSdkControlPanelWorldBuilder __instance, object[] __args) {
             var originalUploadMethod = AccessTools.Method(typeof(WorldBuilderApiPatch), nameof(OriginalBuildAndUpload));
-            __result = RunPreUploadCheckAsync(() => {
+            __result = RunPreUploadCheckAsync(__instance, () => {
                 var fullArgs = new List<object> { __instance };
                 fullArgs.AddRange(__args);
 
@@ -54,8 +57,15 @@ namespace VRChatContentPublisherConnect.Worlds.Editor.Patch {
             return false;
         }
 
-        private static async Task RunPreUploadCheckAsync(Func<Task> uploadAction) {
-            await PreUploadCheck.PreUploadCheckAsync();
+        private static async Task RunPreUploadCheckAsync(
+            VRCSdkControlPanelWorldBuilder builderInstance, Func<Task> uploadAction) {
+            try {
+                await PreUploadCheck.PreUploadCheckAsync();
+            }
+            catch (Exception e) {
+                throw HandleUploadError(builderInstance, e);
+            }
+
             await uploadAction();
         }
 
@@ -76,5 +86,35 @@ namespace VRChatContentPublisherConnect.Worlds.Editor.Patch {
             // This is never called
             throw new NotImplementedException("It's a reverse patch stub.");
         }
+
+    #region Handle Upload Error
+
+        [CanBeNull] private static MethodInfo _handleUploadErrorMethod;
+
+        private static Exception HandleUploadError(VRCSdkControlPanelWorldBuilder builderInstance, Exception ex) {
+            if (_handleUploadErrorMethod is not null) {
+                _handleUploadErrorMethod?.Invoke(builderInstance, new object[] { ex });
+                return ex;
+            }
+
+            _handleUploadErrorMethod = AccessTools.Method(
+                typeof(VRCSdkControlPanelWorldBuilder), "HandleUploadError",
+                new[] {
+                    typeof(Exception)
+                });
+
+            if (_handleUploadErrorMethod is null) {
+                YesLogger.LogError(
+                    ex, $"{LoggerConst.LoggerPrefix}{nameof(WorldBuilderApiPatch)}",
+                    "Unhandled exception during BuildAndUpload PreUpload Check, and HandleUploadError doesn't exist. Please report this to the developer.",
+                    null);
+                throw ex;
+            }
+
+            _handleUploadErrorMethod?.Invoke(builderInstance, new object[] { ex });
+            return ex;
+        }
+
+    #endregion
     }
 }

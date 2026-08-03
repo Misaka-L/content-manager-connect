@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using HarmonyLib;
+using JetBrains.Annotations;
 using UnityEngine;
 using VRC.SDK3A.Editor;
 using VRC.SDKBase.Editor.Api;
 using VRChatContentPublisherConnect.Editor;
 using YesPatchFrameworkForVRChatSdk.PatchApi;
 using YesPatchFrameworkForVRChatSdk.PatchApi.Extensions;
+using YesPatchFrameworkForVRChatSdk.PatchApi.Logging;
 
 namespace VRChatContentPublisherConnect.Avatars.Editor.Patch {
     [HarmonyPatch]
@@ -46,7 +50,7 @@ namespace VRChatContentPublisherConnect.Avatars.Editor.Patch {
     #endif
         public static bool Prefix(ref Task __result, VRCSdkControlPanelAvatarBuilder __instance, object[] __args) {
             var originalUploadMethod = AccessTools.Method(typeof(PreUploadCheckPatch), nameof(OriginalBuildAndUpload));
-            __result = RunPreUploadCheckAsync(() => {
+            __result = RunPreUploadCheckAsync(__instance, () => {
                 var fullArgs = new List<object> { __instance };
                 fullArgs.AddRange(__args);
 
@@ -56,8 +60,15 @@ namespace VRChatContentPublisherConnect.Avatars.Editor.Patch {
             return false;
         }
 
-        private static async Task RunPreUploadCheckAsync(Func<Task> uploadAction) {
-            await PreUploadCheck.PreUploadCheckAsync();
+        private static async Task RunPreUploadCheckAsync(
+            VRCSdkControlPanelAvatarBuilder builderInstance, Func<Task> uploadAction) {
+            try {
+                await PreUploadCheck.PreUploadCheckAsync();
+            }
+            catch (Exception e) {
+                throw HandleUploadError(builderInstance, e);
+            }
+
             await uploadAction();
         }
 
@@ -89,5 +100,35 @@ namespace VRChatContentPublisherConnect.Avatars.Editor.Patch {
             // stub method, will be replaced by original method
             throw new NotImplementedException("This is a stub for the original method.");
         }
+
+    #region Handle Upload Error
+
+        [CanBeNull] private static MethodInfo _handleUploadErrorMethod;
+
+        private static Exception HandleUploadError(VRCSdkControlPanelAvatarBuilder builderInstance, Exception ex) {
+            if (_handleUploadErrorMethod is not null) {
+                _handleUploadErrorMethod?.Invoke(builderInstance, new object[] { ex });
+                return ex;
+            }
+
+            _handleUploadErrorMethod = AccessTools.Method(
+                typeof(VRCSdkControlPanelAvatarBuilder), "HandleUploadError",
+                new[] {
+                    typeof(Exception)
+                });
+
+            if (_handleUploadErrorMethod is null) {
+                YesLogger.LogError(
+                    ex, $"{LoggerConst.LoggerPrefix}{nameof(PreUploadCheckPatch)}",
+                    "Unhandled exception during BuildAndUpload PreUpload Check, and HandleUploadError doesn't exist. Please report this to the developer.",
+                    null);
+                throw ex;
+            }
+
+            _handleUploadErrorMethod?.Invoke(builderInstance, new object[] { ex });
+            return ex;
+        }
+
+    #endregion
     }
 }
