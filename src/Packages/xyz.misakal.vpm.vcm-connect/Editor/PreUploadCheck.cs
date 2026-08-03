@@ -100,6 +100,10 @@ internal static class PreUploadCheck {
         if (ConnectEditorApp.Instance is not { } app)
             throw new InvalidOperationException("VRChat Content Publisher Connect is not initialized.");
 
+        var appSettingsService = app.ServiceProvider.GetRequiredService<AppSettingsService>();
+        if (!appSettingsService.GetSettings().UseContentManager)
+            return;
+
         var rpcClientService = app.ServiceProvider.GetRequiredService<RpcClientService>();
 
         if (await rpcClientService.IsConnectionValidAsync())
