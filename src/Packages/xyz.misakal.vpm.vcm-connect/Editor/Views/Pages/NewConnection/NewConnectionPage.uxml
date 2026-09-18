@@ -9,7 +9,18 @@
         <engine:Label class="page-header" text="Connect to VRChat Manager App" />
 
         <engine:VisualElement name="connect-container">
-            <engine:TextField name="host-input-field" label="Host to Connect" value="http://localhost:59328" />
+            <engine:RadioButtonGroup class="connection-mode-group" name="connection-mode-group" label="Connect To" />
+
+            <engine:VisualElement name="localhost-container">
+                <engine:TextField name="port-input-field" label="Port" value="59328" />
+                <engine:Label class="resolved-url-hint" name="resolved-url-label" text="Will connect to http://localhost:59328" />
+            </engine:VisualElement>
+
+            <engine:VisualElement name="custom-url-container">
+                <engine:TextField name="host-input-field" label="Host to Connect" />
+                <engine:Label class="resolved-url-hint" text="Example: http://192.168.1.10:59328" />
+            </engine:VisualElement>
+
             <engine:Button class="primary-button" name="connect-button" text="Connect" />
         </engine:VisualElement>
 
