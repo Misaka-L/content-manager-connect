@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Allow choosing localhost (port only) or custom url as connection target on new connection page. [#94](https://github.com/project-vrcz/content-publisher-connect/pull/94)
+
 ## [0.5.3] - 2026-08-03
 
 ### Fixed
