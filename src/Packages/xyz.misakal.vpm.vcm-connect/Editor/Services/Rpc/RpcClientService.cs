@@ -230,6 +230,57 @@ internal sealed class RpcClientService {
         return response.StatusCode == HttpStatusCode.NoContent;
     }
 
+    // Asks the app whether the VRChat account session of userId is still valid. The app will ask the
+    // VRChat api again, so this is a real network round trip. Do not call it in hot paths.
+    // Uses _httpClient directly on purpose: see UserSessionValidity documentation.
+    internal async ValueTask<UserSessionValidityResult> CheckUserSessionValidityAsync(string userId) {
+        if (State != RpcClientState.Connected)
+            throw new InvalidOperationException("Client is not connected.");
+        if (string.IsNullOrWhiteSpace(userId))
+            throw new ArgumentException("UserId cannot be null or whitespace.", nameof(userId));
+
+        var request = new HttpRequestMessage(HttpMethod.Get,
+            $"/v1/user-sessions/validity?userId={Uri.EscapeDataString(userId)}");
+
+        var response = await _httpClient.SendAsync(request);
+
+        switch (response.StatusCode) {
+            case HttpStatusCode.NoContent:
+                return new UserSessionValidityResult(UserSessionValidity.Valid, null);
+
+            case HttpStatusCode.ServiceUnavailable:
+                return new UserSessionValidityResult(UserSessionValidity.Invalid,
+                    (await TryReadErrorResponseAsync(response))?.Detail);
+
+            case HttpStatusCode.NotFound: {
+                var errorResponse = await TryReadErrorResponseAsync(response);
+
+                // An app without this endpoint answers a plain 404, so the title is the only way to tell
+                // "the account is not signed in in the app" and "the app is too old" apart.
+                var isSessionNotFound = string.Equals(errorResponse?.Title, "Session Not Found",
+                    StringComparison.OrdinalIgnoreCase);
+
+                return new UserSessionValidityResult(
+                    isSessionNotFound ? UserSessionValidity.SessionNotFound : UserSessionValidity.NotSupported,
+                    errorResponse?.Detail);
+            }
+
+            default:
+                await HandleErrorResponseAsync(response);
+                throw new UnexpectedRpcStatusCodeException((int)response.StatusCode);
+        }
+    }
+
+    private async ValueTask<ErrorResponse?> TryReadErrorResponseAsync(HttpResponseMessage response) {
+        try {
+            return await response.Content.ReadFromJsonAsync<ErrorResponse>(_serializerOptions);
+        }
+        catch (Exception ex) {
+            _logger.LogWarning(ex, "Failed to read the error response from the app.");
+            return null;
+        }
+    }
+
     private void TryLaunchLocalApp() {
         MainThreadDispatcher.Dispatch(() =>
             Application.OpenURL("vrchat-content-manager://launch")
@@ -464,3 +515,21 @@ internal enum RpcClientState {
     AwaitingChallenge,
     Connected
 }
+
+// How the app sees the VRChat account session of a given userId.
+internal enum UserSessionValidity {
+    // The app still has a usable session for that account.
+    Valid,
+
+    // The app has a session for that account, but it is no longer usable, or the app failed to refresh it.
+    Invalid,
+
+    // That account is not signed in in the app at all.
+    SessionNotFound,
+
+    // The app is too old and does not have that endpoint.
+    NotSupported
+}
+
+// Detail is the ProblemDetails "detail" of the app, when the app sent a readable one.
+internal record UserSessionValidityResult(UserSessionValidity Validity, string? Detail);
