@@ -15,6 +15,7 @@
         "VCMC.Microsoft.Extensions.DependencyInjection.Abstractions.dll",
         "VCMC.System.Net.Http.Json.dll",
         "0Harmony.dll",
+        "VRCCore-Editor.dll",
         "VRCSDKBase.dll",
         "VRCSDKBase-Editor.dll",
         "YPF4VRC.System.Text.Json.dll",

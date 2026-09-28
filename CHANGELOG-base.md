@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Check whether the VRChat account signed in in the SDK still has a valid session in the app before starting build and upload, instead of letting the publish task fail later. [#NNN](https://github.com/project-vrcz/content-publisher-connect/pull/NNN)
 - Auto open settings window and show onboarding tip on first install. [#88](https://github.com/project-vrcz/content-publisher-connect/issues/88)
 - Allow choosing localhost (port only) or custom url as connection target on new connection page. [#94](https://github.com/project-vrcz/content-publisher-connect/pull/94)
 
