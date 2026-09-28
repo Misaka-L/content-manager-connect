@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using UnityEditor;
+using VRChatContentPublisherConnect.Editor.Views;
 using VRChatContentPublisherConnect.Editor.Services.Rpc;
 using YesPatchFrameworkForVRChatSdk.PatchApi.Logging;
 
@@ -22,7 +24,23 @@ internal sealed class EditorAppLifetimeService {
     }
 
     public async Task StartAsync() {
+        var isFirstInstall = !_appSettingsService.IsOnboardingCompleted();
         _menuItemService.Init();
+
+        if (isFirstInstall) {
+            MainThreadDispatcher.Dispatch(() => {
+                ContentManagerSettingsWindow.ShowSettings();
+                EditorUtility.DisplayDialog(
+                    "Welcome to VRChat Content Publisher Connect",
+                    "It looks like this is your first time using VRChat Content Publisher Connect.\n\n" +
+                    "The settings window has been opened automatically.\n" +
+                    "Please connect to the VRChat Manager App to get started.",
+                    "OK");
+
+                _appSettingsService.SetOnboardingCompleted();
+            });
+        }
+
         var settings = _appSettingsService.GetSettings();
 
         try {
